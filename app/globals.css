@@ -1,0 +1,248 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  background: #050505;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+
+body { background: #050505; }
+
+.experience {
+  position: fixed;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 42%, #303033 0%, #171719 34%, #050505 78%);
+}
+
+.camera {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.experience[data-camera="ready"] .camera,
+.experience[data-camera="initializing-tracking"] .camera { opacity: 1; }
+
+/* Mirror mode: the video has no intrinsic transform, while the render/debug
+   canvases are drawn using landmark coordinates that are already mirrored to
+   match a flipped video (see app/lib/math.ts mirrorPoint). So the two layers
+   need opposite CSS transforms, and "flipping the whole picture" means
+   swapping which layer carries the flip rather than flipping a shared
+   parent — this keeps the composited result aligned without touching any
+   tracking coordinate math. */
+.experience[data-mirrored="true"] .camera { transform: scaleX(-1); }
+.experience[data-mirrored="false"] .render-canvas,
+.experience[data-mirrored="false"] .debug-canvas { transform: scaleX(-1); }
+
+.render-canvas,
+.debug-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.render-canvas { z-index: 1; }
+.debug-canvas { z-index: 2; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.debug-panel {
+  position: absolute;
+  z-index: 3;
+  top: 18px;
+  left: 18px;
+  width: 300px;
+  padding: 15px 16px 13px;
+  color: #eef0ed;
+  background: rgb(8 9 9 / 82%);
+  border: 1px solid rgb(255 130 53 / 45%);
+  box-shadow: 0 14px 40px rgb(0 0 0 / 34%);
+  backdrop-filter: blur(10px);
+  font-family: Consolas, "SFMono-Regular", monospace;
+  pointer-events: none;
+}
+
+.debug-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 9px;
+  color: #ff843c;
+  border-bottom: 1px solid rgb(255 255 255 / 14%);
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.debug-heading b { color: #e7ebe8; font-weight: 600; }
+
+.debug-panel dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.debug-panel dt { color: rgb(230 233 230 / 52%); }
+.debug-panel dd { margin: 0; color: #f2f3ef; text-align: right; }
+.debug-panel .debug-gpu-name { max-width: 154px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.debug-panel p { margin: 11px 0 0; color: rgb(255 255 255 / 35%); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+
+@media (prefers-reduced-motion: reduce) {
+  .camera { transition: none; }
+}
+
+.control-fab {
+  position: absolute;
+  z-index: 4;
+  right: max(18px, calc(env(safe-area-inset-right) + 8px));
+  bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px));
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 16%);
+  background: rgb(10 10 12 / 62%);
+  backdrop-filter: blur(14px);
+  color: #f2f3ef;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.control-fab:hover { background: rgb(20 20 24 / 72%); transform: translateY(-1px); }
+
+.control-panel {
+  position: absolute;
+  z-index: 4;
+  right: max(18px, calc(env(safe-area-inset-right) + 8px));
+  bottom: max(74px, calc(env(safe-area-inset-bottom) + 64px));
+  width: 240px;
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #eef0ed;
+  background: rgb(10 10 12 / 62%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgb(0 0 0 / 40%);
+  backdrop-filter: blur(18px);
+  font-size: 12px;
+}
+
+.control-group { display: flex; flex-direction: column; gap: 7px; }
+.control-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgb(238 240 237 / 62%); }
+.control-group input[type="range"] { width: 100%; accent-color: #ff843c; }
+
+.control-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.control-pill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 5%);
+  color: #eef0ed;
+  font-size: 11px;
+  cursor: pointer;
+}
+.control-pill[data-active="true"] { background: #ff843c; border-color: #ff843c; color: #1a1204; }
+
+.control-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.control-actions button {
+  padding: 7px 8px;
+  border-radius: 10px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 5%);
+  color: #eef0ed;
+  font-size: 11px;
+  cursor: pointer;
+}
+.control-actions button[aria-pressed="true"] { border-color: #ff843c; color: #ff843c; }
+
+.help-overlay {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: max(90px, calc(env(safe-area-inset-bottom) + 80px));
+  transform: translateX(-50%);
+  width: min(320px, calc(100vw - 36px));
+  padding: 18px 18px 16px;
+  color: #eef0ed;
+  background: rgb(10 10 12 / 78%);
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgb(0 0 0 / 45%);
+  backdrop-filter: blur(18px);
+}
+.help-overlay h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .04em; }
+.help-overlay ul { margin: 0 0 14px; padding-left: 18px; font-size: 12px; line-height: 1.5; color: rgb(238 240 237 / 88%); }
+.help-overlay button {
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: 1px solid #ff843c;
+  background: #ff843c;
+  color: #1a1204;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.status-banner {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: max(22px, calc(env(safe-area-inset-top) + 12px));
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  color: rgb(238 240 237 / 88%);
+  background: rgb(10 10 12 / 62%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+}
+
+.status-banner--error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  top: 40%;
+  padding: 18px 22px;
+  border-radius: 16px;
+  text-align: center;
+}
+.status-banner--error button {
+  padding: 7px 16px;
+  border-radius: 10px;
+  border: 1px solid #ff843c;
+  background: #ff843c;
+  color: #1a1204;
+  font-size: 12px;
+  cursor: pointer;
+}
