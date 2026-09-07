@@ -424,3 +424,48 @@ test("P4: adaptive tracking throttle and mobile safe-area handling exist and are
   assert.match(css, /env\(safe-area-inset-top\)/);
 });
 
+test("P5: attribution, CI, and the opt-in MediaPipe fetch script exist and are self-consistent", async () => {
+  const [license, notice, readme, ci, fetchScript, packageJson] = await Promise.all([
+    readFile(new URL("../LICENSE", import.meta.url), "utf8"),
+    readFile(new URL("../NOTICE.md", import.meta.url), "utf8"),
+    readFile(new URL("../README.md", import.meta.url), "utf8"),
+    readFile(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8"),
+    readFile(new URL("../scripts/fetch-mediapipe-assets.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../package.json", import.meta.url), "utf8"),
+  ]);
+
+  // The original MIT license/copyright notice must be preserved verbatim.
+  assert.match(license, /MIT License/);
+  assert.match(license, /Copyright \(c\) 2026 TaeJun Kwon/);
+
+  // Attribution: original project + MediaPipe/Google, per the audit's
+  // license & attribution requirements.
+  assert.match(notice, /Virtual Smoke.*TaeJun Kwon/s);
+  assert.match(notice, /Apache License 2\.0/);
+  assert.match(notice, /storage\.googleapis\.com\/mediapipe-models/);
+  assert.match(readme, /NOTICE\.md/);
+
+  // CI runs the project's own existing lint + test commands, not new
+  // reinvented steps.
+  assert.match(ci, /actions\/checkout@v4/);
+  assert.match(ci, /actions\/setup-node@v4/);
+  assert.match(ci, /npm ci/);
+  assert.match(ci, /npm run lint/);
+  assert.match(ci, /npm test/);
+
+  // Fetch script: opt-in only (not wired into predev/prebuild), pulls the
+  // exact filenames already vendored under public/mediapipe/, and reads the
+  // MediaPipe version from package.json rather than hardcoding it.
+  const pkg = JSON.parse(packageJson);
+  assert.equal(pkg.scripts.dev, "vinext dev", "fetch script must not be silently wired into dev");
+  assert.equal(pkg.scripts.build, "vinext build", "fetch script must not be silently wired into build");
+  assert.equal(pkg.scripts["fetch:mediapipe"], "node scripts/fetch-mediapipe-assets.mjs");
+  assert.match(fetchScript, /dependencies\?\.\["@mediapipe\/tasks-vision"\]/);
+  assert.match(fetchScript, /vision_wasm_internal\.js/);
+  assert.match(fetchScript, /vision_wasm_module_internal\.wasm/);
+  assert.match(fetchScript, /vision_wasm_nosimd_internal\.wasm/);
+  assert.match(fetchScript, /face_landmarker\.task/);
+  assert.match(fetchScript, /hand_landmarker\.task/);
+  assert.match(fetchScript, /has NOT been run end-to-end/);
+});
+
