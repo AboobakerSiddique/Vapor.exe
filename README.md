@@ -17,17 +17,12 @@ No installation is required for the deployed version — just open the website, 
 **Live URL:**
 `[YOUR_LIVE_URL_HERE]`
 
-### Demo / Preview
-
-**Demo URL:**
-`[YOUR_DEMO_URL_HERE]`
-
 ### Repository
 
 **GitHub:**
-`[YOUR_GITHUB_REPOSITORY_URL_HERE]`
+`[https://github.com/AboobakerSiddique/Vapor.exe]`
 
-> Replace the placeholders above after deployment.
+
 
 ---
 
@@ -777,15 +772,12 @@ The project is still subject to browser, device, and camera-specific limitations
 
 **GitHub Repository**
 
-`[YOUR_GITHUB_REPOSITORY_URL_HERE]`
+`[https://github.com/AboobakerSiddique/Vapor.exe]`
 
-**Demo**
-
-`[YOUR_DEMO_URL_HERE]`
 
 **Project / Portfolio**
 
-`[YOUR_PORTFOLIO_URL_HERE]`
+`[https://portfolio-ten-theta-gasws6e4rg.vercel.app/]`
 
 ---
 
