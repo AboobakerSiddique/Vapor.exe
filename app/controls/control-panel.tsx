@@ -56,11 +56,12 @@ export function ControlPanel() {
         aria-label={panelOpen ? "Close controls" : "Open controls"}
         onClick={togglePanel}
       >
-        {panelOpen ? "✕" : "☰"}
+        {panelOpen ? "X" : "//"}
       </button>
 
       {panelOpen && (
-        <section className="control-panel" aria-label="Smoke effect controls">
+        <section className="control-panel" aria-label="VAPOR.exe controls">
+          <p className="control-panel__heading">VAPOR.exe // CONTROLS</p>
           <div className="control-group">
             <span className="control-label">Style</span>
             <div className="control-pills">
@@ -117,24 +118,24 @@ export function ControlPanel() {
 
           <div className="control-actions">
             <button type="button" onClick={toggleMirrored} aria-pressed={!mirrored}>
-              {mirrored ? "Mirrored" : "True view"}
+              {mirrored ? "MIRRORED" : "TRUE VIEW"}
             </button>
             <button type="button" onClick={toggleFullscreen} aria-pressed={isFullscreen}>
-              Fullscreen
+              FULLSCREEN
             </button>
             <button type="button" onClick={reset}>
-              Reset
+              RESET
             </button>
             <button type="button" onClick={toggleHelp} aria-pressed={helpOpen}>
-              Help
+              HELP
             </button>
           </div>
         </section>
       )}
 
       {helpOpen && (
-        <section className="help-overlay" role="dialog" aria-label="How to use">
-          <h2>How it works</h2>
+        <section className="help-overlay" role="dialog" aria-label="How VAPOR.exe works">
+          <h2>VAPOR.exe // HELP</h2>
           <ul>
             <li>Pinch your thumb and index finger to pick up the cigarette.</li>
             <li>Bring it toward your mouth and purse your lips to inhale.</li>
@@ -142,7 +143,7 @@ export function ControlPanel() {
             <li>The cigarette burns down with each puff and eventually falls.</li>
           </ul>
           <button type="button" onClick={toggleHelp}>
-            Got it
+            [ GOT IT ]
           </button>
         </section>
       )}

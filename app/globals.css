@@ -1,24 +1,66 @@
 @import "tailwindcss";
+/* Pixel/game-style display font, used narrowly for VAPOR.exe branding and a
+   few key HUD labels — see .pixel-text below. Everything else stays on the
+   system sans stack for readability. Loaded from Google Fonts at runtime
+   (no new npm dependency); falls back to a monospace stack if the request
+   is blocked or offline. */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 :root {
   color-scheme: dark;
-  background: #050505;
+  --vapor-bg: #060308;
+  --vapor-purple: #a855f7;
+  --vapor-purple-bright: #c084fc;
+  --vapor-purple-dim: #6d28d9;
+  --vapor-border: rgb(168 85 247 / 30%);
+  --vapor-border-strong: rgb(168 85 247 / 55%);
+  --vapor-panel: rgb(9 5 15 / 92%);
+  --vapor-text: #ece7f5;
+  --vapor-text-dim: rgb(236 231 245 / 58%);
+  --vapor-mono: "Press Start 2P", ui-monospace, "Courier New", monospace;
+  background: var(--vapor-bg);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.pixel-text {
+  font-family: var(--vapor-mono);
+  letter-spacing: .02em;
 }
 
 * { box-sizing: border-box; }
 
 html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
 
-body { background: #050505; }
+body { background: var(--vapor-bg); color: var(--vapor-text); }
 
 .experience {
   position: fixed;
   inset: 0;
   isolation: isolate;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 42%, #303033 0%, #171719 34%, #050505 78%);
+  background: radial-gradient(circle at 50% 40%, #241033 0%, #0d0714 42%, #030104 82%);
 }
+
+/* Faint fixed scanline texture — static, not animated, so it costs nothing
+   per frame. Shared with .boot-screen via a combined selector below. */
+.experience::after,
+.boot-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgb(168 85 247 / 0%) 0px,
+    rgb(168 85 247 / 0%) 2px,
+    rgb(168 85 247 / 3%) 3px,
+    rgb(168 85 247 / 0%) 4px
+  );
+  mix-blend-mode: overlay;
+  opacity: .6;
+}
+.experience::after { z-index: 2; }
+.boot-screen::before { z-index: 0; }
 
 .camera {
   position: absolute;
@@ -71,14 +113,14 @@ body { background: #050505; }
 
 .debug-panel {
   position: absolute;
-  z-index: 3;
+  z-index: 6;
   top: 18px;
   left: 18px;
   width: 300px;
   padding: 15px 16px 13px;
   color: #eef0ed;
   background: rgb(8 9 9 / 82%);
-  border: 1px solid rgb(255 130 53 / 45%);
+  border: 1px solid var(--vapor-border-strong);
   box-shadow: 0 14px 40px rgb(0 0 0 / 34%);
   backdrop-filter: blur(10px);
   font-family: Consolas, "SFMono-Regular", monospace;
@@ -91,7 +133,7 @@ body { background: #050505; }
   justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 9px;
-  color: #ff843c;
+  color: var(--vapor-purple-bright);
   border-bottom: 1px solid rgb(255 255 255 / 14%);
   font-size: 11px;
   letter-spacing: .12em;
@@ -117,73 +159,280 @@ body { background: #050505; }
   .camera { transition: none; }
 }
 
+/* ---------------------------------------------------------------------- */
+/* Boot / launch screen                                                    */
+/* ---------------------------------------------------------------------- */
+
+.boot-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 38%, #1a0a28 0%, #0a0511 46%, #030104 86%);
+  animation: vapor-boot-in 260ms ease both;
+}
+
+.boot-screen__sys {
+  margin: 0 0 10px;
+  color: rgb(236 231 245 / 40%);
+  font-family: var(--vapor-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+}
+
+.boot-screen__title {
+  margin: 0;
+  color: var(--vapor-text);
+  font-family: var(--vapor-mono);
+  font-size: clamp(28px, 8vw, 52px);
+  letter-spacing: .03em;
+  text-shadow: 0 0 18px var(--vapor-purple), 0 0 42px rgb(168 85 247 / 45%);
+}
+
+.boot-screen__ext { color: var(--vapor-purple-bright); }
+
+.boot-screen__subtitle {
+  margin: 0 0 22px;
+  color: var(--vapor-text-dim);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.boot-screen__enter {
+  padding: 12px 30px;
+  color: var(--vapor-text);
+  background: rgb(168 85 247 / 8%);
+  border: 1px solid var(--vapor-border-strong);
+  font-family: var(--vapor-mono);
+  font-size: 13px;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+.boot-screen__enter:hover,
+.boot-screen__enter:focus-visible {
+  background: rgb(168 85 247 / 18%);
+  box-shadow: 0 0 24px rgb(168 85 247 / 35%);
+  transform: translateY(-1px);
+}
+.boot-screen__enter:active { transform: translateY(0); }
+
+.boot-screen__requirement {
+  margin: 18px 0 0;
+  color: rgb(236 231 245 / 45%);
+  font-size: 10px;
+  letter-spacing: .18em;
+}
+
+@keyframes vapor-boot-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-screen { animation: none; }
+  .boot-screen__enter { transition: none; }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .boot-screen { gap: 8px; padding: 16px; }
+  .boot-screen__title { font-size: clamp(20px, 6vw, 32px); }
+  .boot-screen__subtitle { margin-bottom: 12px; }
+  .boot-screen__requirement { margin-top: 10px; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* HUD: burn indicator + grabbed toast                                     */
+/* ---------------------------------------------------------------------- */
+
+.burn-hud {
+  position: absolute;
+  z-index: 3;
+  left: max(18px, calc(env(safe-area-inset-left) + 8px));
+  top: max(18px, calc(env(safe-area-inset-top) + 12px));
+  width: 168px;
+  padding: 8px 10px 9px;
+  color: var(--vapor-text);
+  background: var(--vapor-panel);
+  border: 1px solid var(--vapor-border);
+  pointer-events: none;
+}
+
+.burn-hud__label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: rgb(236 231 245 / 55%);
+  font-family: var(--vapor-mono);
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+
+.burn-hud__label span:last-child { color: var(--vapor-purple-bright); }
+
+.burn-hud__bar {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  background: rgb(168 85 247 / 10%);
+  border: 1px solid var(--vapor-border);
+}
+
+.burn-hud__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--vapor-purple-dim), var(--vapor-purple-bright));
+  transition: transform 220ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burn-hud__fill { transition: none; }
+}
+
+.grabbed-toast {
+  position: absolute;
+  z-index: 3;
+  left: max(18px, calc(env(safe-area-inset-left) + 8px));
+  top: max(64px, calc(env(safe-area-inset-top) + 58px));
+  padding: 5px 9px;
+  color: var(--vapor-purple-bright);
+  background: var(--vapor-panel);
+  border: 1px solid var(--vapor-border-strong);
+  font-family: var(--vapor-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grabbed-toast.is-visible {
+  animation: vapor-grabbed 1.1s ease both;
+}
+
+@keyframes vapor-grabbed {
+  0% { opacity: 0; transform: translateX(-3px); }
+  12% { opacity: 1; transform: translateX(0); }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grabbed-toast.is-visible { animation: vapor-grabbed-reduced 1.1s linear both; }
+}
+@keyframes vapor-grabbed-reduced {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 420px) {
+  .burn-hud { width: 140px; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Control panel — same structure/class names as before, VAPOR.exe skin    */
+/* ---------------------------------------------------------------------- */
+
 .control-fab {
   position: absolute;
   z-index: 4;
   right: max(18px, calc(env(safe-area-inset-right) + 8px));
   bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px));
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 1px solid rgb(255 255 255 / 16%);
-  background: rgb(10 10 12 / 62%);
-  backdrop-filter: blur(14px);
-  color: #f2f3ef;
-  font-size: 18px;
+  width: 44px;
+  height: 44px;
+  color: var(--vapor-purple-bright);
+  background: var(--vapor-panel);
+  border: 1px solid var(--vapor-border-strong);
+  font-family: var(--vapor-mono);
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
-  transition: background 160ms ease, transform 160ms ease;
+  transition: background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
-.control-fab:hover { background: rgb(20 20 24 / 72%); transform: translateY(-1px); }
+.control-fab:hover,
+.control-fab:focus-visible {
+  background: rgb(168 85 247 / 14%);
+  box-shadow: 0 0 18px rgb(168 85 247 / 30%);
+  transform: translateY(-1px);
+}
 
 .control-panel {
   position: absolute;
   z-index: 4;
   right: max(18px, calc(env(safe-area-inset-right) + 8px));
-  bottom: max(74px, calc(env(safe-area-inset-bottom) + 64px));
-  width: 240px;
-  padding: 16px 16px 14px;
+  bottom: max(72px, calc(env(safe-area-inset-bottom) + 62px));
+  width: 234px;
+  padding: 14px 14px 12px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  color: #eef0ed;
-  background: rgb(10 10 12 / 62%);
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgb(0 0 0 / 40%);
-  backdrop-filter: blur(18px);
+  gap: 13px;
+  color: var(--vapor-text);
+  background: var(--vapor-panel);
+  border: 1px solid var(--vapor-border);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 40%), 0 18px 40px rgb(0 0 0 / 55%);
   font-size: 12px;
+  animation: vapor-panel-in 140ms ease both;
+}
+
+@keyframes vapor-panel-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.control-panel__heading {
+  margin: 0 0 2px;
+  padding-bottom: 8px;
+  color: rgb(236 231 245 / 55%);
+  border-bottom: 1px solid var(--vapor-border);
+  font-family: var(--vapor-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
 }
 
 .control-group { display: flex; flex-direction: column; gap: 7px; }
-.control-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgb(238 240 237 / 62%); }
-.control-group input[type="range"] { width: 100%; accent-color: #ff843c; }
+.control-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgb(236 231 245 / 58%); }
+.control-group input[type="range"] { width: 100%; accent-color: var(--vapor-purple); }
 
 .control-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .control-pill {
   padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid rgb(255 255 255 / 14%);
-  background: rgb(255 255 255 / 5%);
-  color: #eef0ed;
-  font-size: 11px;
+  border: 1px solid var(--vapor-border);
+  background: rgb(168 85 247 / 6%);
+  color: var(--vapor-text);
+  font-family: var(--vapor-mono);
+  font-size: 9px;
   cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
 }
-.control-pill[data-active="true"] { background: #ff843c; border-color: #ff843c; color: #1a1204; }
+.control-pill[data-active="true"] { background: var(--vapor-purple-dim); border-color: var(--vapor-purple-bright); color: #fff; }
 
 .control-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .control-actions button {
   padding: 7px 8px;
-  border-radius: 10px;
-  border: 1px solid rgb(255 255 255 / 14%);
-  background: rgb(255 255 255 / 5%);
-  color: #eef0ed;
-  font-size: 11px;
+  border: 1px solid var(--vapor-border);
+  background: rgb(168 85 247 / 6%);
+  color: var(--vapor-text);
+  font-family: var(--vapor-mono);
+  font-size: 9px;
   cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
 }
-.control-actions button[aria-pressed="true"] { border-color: #ff843c; color: #ff843c; }
+.control-actions button[aria-pressed="true"] { border-color: var(--vapor-purple-bright); color: var(--vapor-purple-bright); }
+.control-actions button:hover,
+.control-actions button:focus-visible,
+.control-pill:hover,
+.control-pill:focus-visible { background: rgb(168 85 247 / 14%); }
 
 .help-overlay {
   position: absolute;
@@ -193,24 +442,37 @@ body { background: #050505; }
   transform: translateX(-50%);
   width: min(320px, calc(100vw - 36px));
   padding: 18px 18px 16px;
-  color: #eef0ed;
-  background: rgb(10 10 12 / 78%);
-  border: 1px solid rgb(255 255 255 / 14%);
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgb(0 0 0 / 45%);
-  backdrop-filter: blur(18px);
+  color: var(--vapor-text);
+  background: var(--vapor-panel);
+  border: 1px solid var(--vapor-border);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 55%);
+  animation: vapor-panel-in 140ms ease both;
 }
-.help-overlay h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .04em; }
-.help-overlay ul { margin: 0 0 14px; padding-left: 18px; font-size: 12px; line-height: 1.5; color: rgb(238 240 237 / 88%); }
+.help-overlay h2 {
+  margin: 0 0 10px;
+  color: var(--vapor-purple-bright);
+  font-family: var(--vapor-mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+.help-overlay ul { margin: 0 0 14px; padding-left: 18px; font-size: 12px; line-height: 1.5; color: rgb(236 231 245 / 85%); }
 .help-overlay button {
   padding: 7px 14px;
-  border-radius: 10px;
-  border: 1px solid #ff843c;
-  background: #ff843c;
-  color: #1a1204;
-  font-size: 12px;
+  border: 1px solid var(--vapor-purple-bright);
+  background: var(--vapor-purple-dim);
+  color: #fff;
+  font-family: var(--vapor-mono);
+  font-size: 10px;
   cursor: pointer;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .control-panel, .help-overlay { animation: none; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Status banners (camera loading / tracking init / denied)                */
+/* ---------------------------------------------------------------------- */
 
 .status-banner {
   position: absolute;
@@ -219,12 +481,12 @@ body { background: #050505; }
   top: max(22px, calc(env(safe-area-inset-top) + 12px));
   transform: translateX(-50%);
   padding: 8px 16px;
-  color: rgb(238 240 237 / 88%);
-  background: rgb(10 10 12 / 62%);
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: 999px;
-  backdrop-filter: blur(12px);
-  font-size: 12px;
+  color: var(--vapor-text-dim);
+  background: var(--vapor-panel);
+  border: 1px solid var(--vapor-border);
+  font-family: var(--vapor-mono);
+  font-size: 10px;
+  letter-spacing: .04em;
 }
 
 .status-banner--error {
@@ -234,15 +496,26 @@ body { background: #050505; }
   gap: 10px;
   top: 40%;
   padding: 18px 22px;
-  border-radius: 16px;
   text-align: center;
 }
+.status-banner--error p { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 13px; letter-spacing: normal; color: var(--vapor-text); }
 .status-banner--error button {
   padding: 7px 16px;
-  border-radius: 10px;
-  border: 1px solid #ff843c;
-  background: #ff843c;
-  color: #1a1204;
-  font-size: 12px;
+  border: 1px solid var(--vapor-purple-bright);
+  background: var(--vapor-purple-dim);
+  color: #fff;
+  font-family: var(--vapor-mono);
+  font-size: 11px;
   cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mobile landscape: keep HUD + panel from overlapping on short viewports  */
+/* ---------------------------------------------------------------------- */
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .burn-hud { top: max(10px, env(safe-area-inset-top)); }
+  .grabbed-toast { top: max(46px, calc(env(safe-area-inset-top) + 40px)); }
+  .control-panel { bottom: max(58px, calc(env(safe-area-inset-bottom) + 50px)); max-height: 78vh; overflow-y: auto; }
+  .help-overlay { bottom: max(70px, calc(env(safe-area-inset-bottom) + 62px)); }
 }

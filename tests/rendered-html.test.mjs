@@ -94,7 +94,7 @@ test("renders the local AR experience shell and production metadata", async () =
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /<title>Virtual Cigarette<\/title>/i);
+  assert.match(html, /<title>VAPOR\.exe<\/title>/i);
   assert.match(html, /class="experience"/i);
   assert.match(html, /class="camera"/i);
   assert.match(html, /class="render-canvas"/i);
@@ -467,5 +467,84 @@ test("P5: attribution, CI, and the opt-in MediaPipe fetch script exist and are s
   assert.match(fetchScript, /face_landmarker\.task/);
   assert.match(fetchScript, /hand_landmarker\.task/);
   assert.match(fetchScript, /has NOT been run end-to-end/);
+});
+
+test("P6: VAPOR.exe redesign — boot gate, HUD, and branding exist without touching tracking/rendering logic", async () => {
+  const [experience, bootScreen, controlPanel, css, page, layout, packageJson] = await Promise.all([
+    readFile(new URL("../app/smoking-experience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/boot/boot-screen.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/controls/control-panel.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../package.json", import.meta.url), "utf8"),
+  ]);
+
+  // Boot gate: the experience shell (video/canvases) must stay
+  // unconditionally mounted — BootScreen renders as an overlay ON TOP of it,
+  // not as a replacement, so refs and the SSR'd shell never disappear.
+  assert.match(experience, /const \[entered, setEntered\] = useState\(false\)/);
+  assert.match(experience, /if \(!entered\) return;/);
+  assert.match(experience, /\{!entered && <BootScreen onEnter=\{\(\) => setEntered\(true\)\} \/>\}/);
+  const mainIdx = experience.indexOf('<main className="experience"');
+  const videoIdx = experience.indexOf("<video ref={videoRef}");
+  const bootOverlayIdx = experience.indexOf("{!entered && <BootScreen");
+  assert.ok(mainIdx > -1 && videoIdx > mainIdx && bootOverlayIdx > videoIdx);
+  // No fake/simulated loading sequence — entering goes straight to the real
+  // camera effect (gated only by `entered`, no artificial delay/timer).
+  assert.doesNotMatch(bootScreen, /setTimeout|setInterval/);
+
+  // Burn HUD + GRABBED toast are driven imperatively (direct DOM writes),
+  // not via React state, so they don't cause a re-render on every frame.
+  assert.match(experience, /burnFillRef\.current\.style\.transform = `scaleX\(\$\{burn\}\)`/);
+  assert.match(experience, /const isHeld = snapshot\.cigaretteState !== "IDLE" && snapshot\.cigaretteState !== "FALLING"/);
+  assert.match(experience, /if \(isHeld && !wasHeld && grabbedToastRef\.current\)/);
+  assert.match(experience, /toast\.classList\.add\("is-visible"\)/);
+
+  // Tracking/rendering call sites are untouched by this pass.
+  assert.match(experience, /const snapshot = engine\.update\(face, hands, now, dt, delegate\)/);
+  assert.match(experience, /visual\.update\(snapshot, face, now, dt, fps\)/);
+
+  // Branding: VAPOR.exe throughout, old name retired from user-facing text.
+  assert.match(bootScreen, /VAPOR<span className="boot-screen__ext">\.exe<\/span>/);
+  assert.match(bootScreen, /CAMERA REQUIRED/);
+  assert.match(page, /title: "VAPOR\.exe"/);
+  assert.match(layout, /title: "VAPOR\.exe"/);
+  assert.doesNotMatch(page, /Virtual Cigarette/);
+  assert.doesNotMatch(layout, /Virtual Cigarette/);
+  assert.match(controlPanel, /VAPOR\.exe \/\/ CONTROLS/);
+
+  // Palette/typography: purple accent (not neon-flooded), pixel font scoped
+  // narrowly via .pixel-text rather than applied globally.
+  assert.match(css, /--vapor-purple: #a855f7/);
+  assert.match(css, /Press\+Start\+2P/);
+  assert.match(css, /\.pixel-text \{/);
+  assert.doesNotMatch(css, /body \{[^}]*font-family: var\(--vapor-mono\)/s);
+
+  // No new npm dependencies were added for this pass (font is loaded via a
+  // plain CSS @import, not an installed package).
+  const pkg = JSON.parse(packageJson);
+  const deps = Object.keys(pkg.dependencies ?? {});
+  assert.deepEqual(
+    deps.sort(),
+    [
+      "@mediapipe/tasks-vision",
+      "drizzle-orm",
+      "react",
+      "react-dom",
+      "three",
+      "zustand",
+    ].sort(),
+    "no new runtime dependencies should have been added for a frontend-only redesign",
+  );
+
+  // Safe-area handling preserved for the new HUD elements too.
+  assert.match(css, /\.burn-hud \{[^}]*env\(safe-area-inset-left\)/s);
+  assert.match(css, /\.grabbed-toast \{[^}]*env\(safe-area-inset-left\)/s);
+
+  // Reduced-motion respected for every new animation.
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.boot-screen \{ animation: none; \}/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.grabbed-toast\.is-visible/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.burn-hud__fill/);
 });
 

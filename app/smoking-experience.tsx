@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BootScreen } from "./boot/boot-screen";
 import { ControlPanel } from "./controls/control-panel";
 import { DebugOverlay, drawTrackingDebug } from "./debug-overlay";
 import { FaceAnalyzer, HandAnalyzer } from "./lib/analyzers";
@@ -15,11 +16,15 @@ export function SmokingExperience() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const renderCanvasRef = useRef<HTMLCanvasElement>(null);
   const debugCanvasRef = useRef<HTMLCanvasElement>(null);
+  const burnFillRef = useRef<HTMLDivElement>(null);
+  const grabbedToastRef = useRef<HTMLDivElement>(null);
   const [cameraState, setCameraState] = useState<"loading" | "ready" | "initializing-tracking" | "denied">("loading");
   const [retryToken, setRetryToken] = useState(0);
+  const [entered, setEntered] = useState(false);
   const mirrored = useSettingsStore((state) => state.mirrored);
 
   useEffect(() => {
+    if (!entered) return;
     const video = videoRef.current;
     const renderCanvas = renderCanvasRef.current;
     const debugCanvas = debugCanvasRef.current;
@@ -50,6 +55,7 @@ export function SmokingExperience() {
     let renderedFrames = 0;
     let fps = 60;
     let inputLatencyMs = 0;
+    let wasHeld = false;
     let handInferenceMs = 0;
     let faceInferenceMs = 0;
     const frameTimes: number[] = [];
@@ -164,6 +170,26 @@ export function SmokingExperience() {
       tracker?.setPerformanceMode(visual.getQuality());
       if (appliedThisFrame) inputLatencyMs = Math.max(0, performance.now() - appliedThisFrame.sourceTimestamp);
 
+      // Imperative HUD updates (burn bar + GRABBED toast) — deliberately
+      // outside React state, matching the existing pattern used for FPS and
+      // debug stats below (renderCanvas.dataset.*). This runs every frame at
+      // up to 60fps; touching React state here would force a full component
+      // re-render per frame. Direct writes of GPU-friendly properties
+      // (transform, and a CSS class that drives an opacity/transform
+      // animation) avoid that entirely.
+      if (burnFillRef.current) {
+        const burn = Math.min(1, Math.max(0, snapshot.cigaretteBurn));
+        burnFillRef.current.style.transform = `scaleX(${burn})`;
+      }
+      const isHeld = snapshot.cigaretteState !== "IDLE" && snapshot.cigaretteState !== "FALLING";
+      if (isHeld && !wasHeld && grabbedToastRef.current) {
+        const toast = grabbedToastRef.current;
+        toast.classList.remove("is-visible");
+        void toast.offsetWidth; // restart the CSS animation if it fires again quickly
+        toast.classList.add("is-visible");
+      }
+      wasHeld = isHeld;
+
       const debugMode = useInteractionStore.getState().debugMode;
       if (debugMode) {
         drawTrackingDebug(
@@ -267,7 +293,7 @@ export function SmokingExperience() {
       visual?.dispose();
       stream?.getTracks().forEach((track) => track.stop());
     };
-  }, [retryToken]);
+  }, [retryToken, entered]);
 
   return (
     <main className="experience" data-camera={cameraState} data-mirrored={mirrored}>
@@ -283,15 +309,33 @@ export function SmokingExperience() {
               ? "Camera access is required."
               : "Preparing camera."}
       </p>
-      {cameraState === "initializing-tracking" && <p className="status-banner">Preparing tracking…</p>}
-      {cameraState === "denied" && (
+      {entered && cameraState === "loading" && <p className="status-banner pixel-text">AWAITING CAMERA ACCESS</p>}
+      {entered && cameraState === "initializing-tracking" && <p className="status-banner pixel-text">PREPARING TRACKING…</p>}
+      {entered && cameraState === "denied" && (
         <div className="status-banner status-banner--error">
           <p>Camera access is required for this experience.</p>
-          <button type="button" onClick={() => setRetryToken((token) => token + 1)}>
-            Try again
+          <button type="button" className="pixel-text" onClick={() => setRetryToken((token) => token + 1)}>
+            [ TRY AGAIN ]
           </button>
         </div>
       )}
+      {entered && cameraState === "ready" && (
+        <>
+          <div className="burn-hud" aria-hidden="true">
+            <div className="burn-hud__label">
+              <span>BURN</span>
+              <span>VAPOR.exe</span>
+            </div>
+            <div className="burn-hud__bar">
+              <div ref={burnFillRef} className="burn-hud__fill" />
+            </div>
+          </div>
+          <div ref={grabbedToastRef} className="grabbed-toast" aria-hidden="true">
+            GRABBED
+          </div>
+        </>
+      )}
+      {!entered && <BootScreen onEnter={() => setEntered(true)} />}
       <ControlPanel />
       <DebugOverlay />
     </main>

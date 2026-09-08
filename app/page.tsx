@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { SmokingExperience } from "./smoking-experience";
 
 export const metadata: Metadata = {
-  title: "Virtual Cigarette",
-  description: "A local, real-time virtual smoke interaction experience.",
+  title: "VAPOR.exe",
+  description: "A digital smoke experience — real-time AR interaction powered entirely on your device.",
 };
 
 export default function Home() {

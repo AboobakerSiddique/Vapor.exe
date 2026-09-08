@@ -1,350 +1,440 @@
 # VAPOR.exe
 
-> **An interactive browser-based AR smoke experience powered by real-time hand and face tracking.**
+> **A browser-based AR smoking simulation powered by hand tracking, face tracking, WebGL, and real-time procedural smoke.**
 
-VAPOR.exe is a real-time browser experience that combines **webcam-based hand and face tracking, interactive 3D rendering, procedural smoke effects, and gesture-driven interaction**.
+VAPOR.exe is an experimental browser experience that turns your webcam into an interactive augmented-reality environment.
 
-Instead of simply displaying a virtual object on screen, VAPOR.exe lets you interact with a virtual cigarette using your hand and facial movements. Pinch it, bring it toward your mouth, inhale, exhale, and watch the cigarette burn down while procedural smoke reacts dynamically around you.
+Use your **hand to grab a virtual cigarette**, bring it toward your mouth, inhale, and exhale to create real-time smoke effects. The experience combines MediaPipe tracking with a custom WebGL smoke renderer and a Y2K / PS2-era inspired interface.
 
-Built for the browser using **TypeScript, React, MediaPipe, Three.js, WebGL, and GLSL**.
+No installation is required for the deployed version — just open the website, allow camera access, and enter the experience.
+
+---
+
+## 🌐 Live
+
+### Production
+
+**Live URL:**
+`[YOUR_LIVE_URL_HERE]`
+
+### Demo / Preview
+
+**Demo URL:**
+`[YOUR_DEMO_URL_HERE]`
+
+### Repository
+
+**GitHub:**
+`[YOUR_GITHUB_REPOSITORY_URL_HERE]`
+
+> Replace the placeholders above after deployment.
 
 ---
 
 ## ✦ Features
 
-### 🖐 Real-Time Hand Interaction
+### 🖐️ Hand Tracking
 
-VAPOR.exe tracks your hand through your webcam and allows you to interact with the virtual cigarette naturally.
+Use your webcam to control the virtual cigarette.
 
-* Pinch/grab interaction
-* Hand proximity detection
-* Adjustable interaction sensitivity
-* Real-time cigarette positioning
-* Gesture-based interaction without physical controllers
+* Pinch your fingers to grab the cigarette
+* Move your hand naturally through the camera view
+* Release the pinch to drop it
+* Real-time hand landmark tracking
+* Adjustable tracking sensitivity
 
----
-
-### 👄 Face & Mouth Tracking
-
-The experience uses real-time facial landmarks to detect interactions with the cigarette.
-
-* Mouth proximity detection
-* Inhale interaction
-* Mouth-opening detection
-* Exhale interaction
-* Nose-related smoke behavior
-* Real-time facial landmark processing
-
-The camera feed and tracking are processed locally in the browser.
+When the cigarette is successfully grabbed, a small **`GRABBED`** indicator appears on the HUD.
 
 ---
 
-## 🚬 Interactive Cigarette System
+### 👄 Face & Mouth Interaction
 
-The cigarette is not simply a static 3D model.
+VAPOR.exe uses face tracking to detect interaction with the virtual cigarette.
 
-Its state changes dynamically based on your interactions.
+Bring the cigarette toward your mouth and use your facial movements to interact with the simulation.
 
-### Basic interaction flow
+The system can detect:
 
-1. Pinch the virtual cigarette.
-2. Move it toward your mouth.
-3. Hold it near your mouth to trigger the inhale interaction.
-4. The cigarette progressively burns.
-5. Smoke is generated from the cigarette.
-6. Open your mouth to trigger an exhale smoke burst.
-7. Additional smoke behavior can occur around the nose.
-8. Continue interacting until the cigarette burns down.
-9. Once fully burned, the cigarette falls away.
+* Mouth position
+* Mouth opening
+* Lip movement / pursing
+* Relative cigarette-to-mouth positioning
 
-The interaction engine controls these states in real time.
+These interactions drive the inhale and exhale effects.
 
 ---
 
-# 🌫 Procedural Smoke
+### 💨 Procedural Smoke
 
-VAPOR.exe uses GPU-rendered procedural smoke rather than relying entirely on pre-rendered animations.
+Smoke is generated in real time using a custom WebGL renderer.
 
-The smoke system is built with **Three.js and custom WebGL/GLSL shader logic**.
+The smoke system includes:
 
-The renderer supports multiple visual presets.
-
-### Available presets
-
-* **Realistic**
-* **Cinematic**
-* **Ghostly**
-* **Neon**
-* **Dense**
-
-Each preset can control characteristics such as:
-
-* Smoke color
-* Tip opacity
-* Burst opacity
-* Nose smoke intensity
-* Ash appearance
-* Ash opacity
+* Procedural smoke particles
 * Turbulence
-* Blending mode
+* Wind influence
+* Dynamic movement
+* Multiple smoke presets
+* Intensity control
+* Smoke blending
+* Ash particles
+* Cigarette burn progression
 
-The system also supports wind-driven smoke movement.
-
----
-
-# 💨 Wind System
-
-Smoke can respond to configurable wind strength and direction.
-
-Wind affects the procedural smoke movement while keeping other interaction behavior intact.
-
-This allows the smoke to feel less static and more physically dynamic.
+Smoke behavior is simulated locally in the browser rather than generated from pre-rendered video.
 
 ---
 
-# 🔥 Burn & Ash Effects
+### 🔥 Cigarette Burn System
 
-The cigarette gradually burns during the inhale interaction.
+The virtual cigarette progressively burns during the experience.
 
-As it burns:
+The interface includes a visual burn indicator so you can see the cigarette's current state.
 
-* The cigarette shortens
-* Smoke is emitted
-* Ash can spawn
-* Ash falls under gravity
-* Ash can tumble and shrink
-* The cigarette eventually reaches its fully-burned state
-
-Ash particles are treated separately from smoke and respond differently to environmental forces.
+As the cigarette reaches the end of its lifecycle, it can burn out and fall from the interaction point.
 
 ---
 
-# 🎛 VAPOR.exe Control Panel
+## 🎮 Visual Experience
 
-VAPOR.exe includes a minimal floating glass-style interface designed to stay out of the way of the camera experience.
+VAPOR.exe uses a visual language inspired by:
 
-The control panel is **collapsed by default** and can be opened using a floating action button.
+* Y2K cyber aesthetics
+* PS2-era game interfaces
+* Early digital camera / game HUD design
+* Dark futuristic UI
+* Minimal cyberpunk interfaces
 
-### Controls
+The interface uses a predominantly **black and purple** palette with pixel-inspired typography and restrained visual effects.
 
-#### Smoke Style
-
-Choose between the available smoke presets:
-
-* Realistic
-* Cinematic
-* Ghostly
-* Neon
-* Dense
-
-#### Smoke Intensity
-
-Adjust the overall smoke opacity independently of the selected visual preset.
-
-#### Wind
-
-Adjust the environmental wind strength affecting smoke movement.
-
-#### Sensitivity
-
-Adjust hand interaction sensitivity.
-
-Higher sensitivity provides a larger interaction/proximity range, while lower sensitivity requires more precise positioning.
-
-#### Camera Flip
-
-Toggle the camera presentation between mirrored and non-mirrored modes.
-
-The camera flip is implemented as a presentation-layer transformation without modifying the underlying tracking coordinate calculations.
-
-#### Fullscreen
-
-Enter fullscreen mode for a more immersive experience.
-
-The fullscreen state synchronizes with the browser's actual fullscreen state, including exiting fullscreen with `Escape`.
-
-#### Reset
-
-Restore the experience settings to their defaults.
-
-#### Help
-
-Open the built-in interaction instructions.
+The goal is to make the application feel more like an interactive game than a conventional web application.
 
 ---
 
-# 📱 Mobile Support
+## 🖥️ Interface
 
-VAPOR.exe is designed to work in modern mobile browsers capable of accessing the device camera.
+### Boot Screen
 
-You can run the development server on your computer and access it from a phone on the same local network.
-
-Example:
+The experience begins with a minimal executable-style launch screen.
 
 ```text
-http://YOUR-COMPUTER-IP:3000
+VAPOR.exe
+
+[ ENTER ]
+
+CAMERA REQUIRED
 ```
 
-For example:
+There is no artificial loading animation or fake progress bar.
 
-```text
-http://192.168.1.6:3000
-```
-
-> Camera permissions and browser security policies can affect camera access, particularly when using an unsecured HTTP connection on mobile devices. Production deployments should use HTTPS.
+The application initializes the actual experience underneath the boot interface.
 
 ---
 
-# ⚡ Adaptive Performance
+### Camera HUD
 
-VAPOR.exe includes adaptive performance behavior intended to maintain a smoother experience across different hardware.
+Once inside the experience, a game-style HUD provides information about the current interaction state.
 
-The smoke renderer monitors performance and can adjust rendering quality based on observed frame rate.
+The HUD can communicate:
 
-Tracking performance is also connected to the renderer's quality tier.
+* Camera status
+* Tracking state
+* Cigarette interaction
+* Burn progression
+* System information
 
-### Performance modes
-
-The tracking system supports:
-
-* **HIGH** — process every new frame
-* **MEDIUM** — process every second new frame
-* **LOW** — process every third new frame
-
-Duplicate video frames are ignored before the throttle is applied.
-
-This prevents unnecessary MediaPipe inference when the camera has not produced a genuinely new frame.
+The HUD is intentionally kept lightweight so that it doesn't interfere with the AR experience.
 
 ---
 
-# 🧠 Tracking Architecture
+### Control Panel
 
-The application combines several systems:
+The floating control panel provides access to:
 
-```text
-                 Webcam
-                    │
-                    ▼
-          ┌───────────────────┐
-          │   MediaPipe       │
-          │ Hand + Face       │
-          │ Tracking          │
-          └─────────┬─────────┘
-                    │
-                    ▼
-          ┌───────────────────┐
-          │ Vision Tracker    │
-          └─────────┬─────────┘
-                    │
-                    ▼
-          ┌───────────────────┐
-          │ Interaction       │
-          │ Engine            │
-          └─────────┬─────────┘
-                    │
-                    ▼
-       ┌─────────────────────────┐
-       │ Three.js / WebGL        │
-       │ Smoke + Cigarette       │
-       │ Rendering               │
-       └────────────┬────────────┘
-                    │
-                    ▼
-              Final Camera View
-```
+* Smoke preset
+* Smoke intensity
+* Wind strength
+* Tracking sensitivity
+* Camera mirroring
+* Fullscreen mode
+* Reset
+* Help
+
+The panel is collapsed by default to keep the main experience clean.
 
 ---
 
-# 🏗 Project Architecture
+## 🎨 Smoke Presets
 
-The project is primarily organized around the following systems:
+VAPOR.exe includes multiple visual smoke styles.
+
+| Preset        | Description                                  |
+| ------------- | -------------------------------------------- |
+| **Realistic** | Natural-looking smoke with balanced movement |
+| **Cinematic** | Softer, more dramatic smoke behavior         |
+| **Ghostly**   | Light and atmospheric smoke                  |
+| **Neon**      | Stylized futuristic smoke                    |
+| **Dense**     | Stronger and heavier smoke output            |
+
+The preset system is designed so additional smoke styles can be added without changing the core interaction system.
+
+---
+
+## ⚙️ Controls
+
+### Smoke Intensity
+
+Controls the overall amount and visual strength of generated smoke.
+
+### Wind
+
+Controls the directional influence applied to smoke and particles.
+
+### Sensitivity
+
+Adjusts how responsive hand interaction is to tracked movement.
+
+### Camera Flip
+
+Mirrors the camera view for a more natural selfie-style experience.
+
+### Fullscreen
+
+Expands the experience to fullscreen when supported by the browser.
+
+### Reset
+
+Returns configurable experience settings to their defaults.
+
+### Help
+
+Displays basic instructions for interacting with VAPOR.exe.
+
+---
+
+## 🕹️ Interaction Flow
+
+The basic experience works like this:
 
 ```text
-app/
-├── controls/
-│   └── control-panel.tsx
-│
-├── lib/
-│   ├── config.ts
-│   ├── interaction-engine.ts
-│   ├── settings-store.ts
-│   ├── smoke-presets.ts
-│   ├── smoke-renderer.ts
-│   └── vision-tracker.ts
-│
-├── smoking-experience.tsx
-├── globals.css
-└── layout.tsx
-
-public/
-└── mediapipe/
-
-tests/
-└── rendered-html.test.mjs
-
-scripts/
-└── fetch-mediapipe-assets.mjs
-
-.github/
-└── workflows/
-    └── ci.yml
-
-LICENSE
-NOTICE.md
-README.md
-package.json
+        WEBCAM
+           │
+           ▼
+   ┌─────────────────┐
+   │ Hand Tracking   │
+   │ Face Tracking   │
+   └────────┬────────┘
+            │
+            ▼
+      Find Cigarette
+            │
+            ▼
+       Pinch / Grab
+            │
+            ▼
+         GRABBED
+            │
+            ▼
+      Move Toward Mouth
+            │
+            ▼
+       Inhale / Burn
+            │
+            ▼
+       Smoke Generated
+            │
+            ▼
+        Exhale / Smoke
+            │
+            ▼
+       Cigarette Burns
+            │
+            ▼
+          End State
 ```
 
 ---
 
-# 🛠 Tech Stack
+## 📱 Mobile Support
 
-| Technology      | Purpose                                        |
-| --------------- | ---------------------------------------------- |
-| **TypeScript**  | Application logic and type safety              |
-| **React**       | User interface and application components      |
-| **Three.js**    | 3D rendering                                   |
-| **WebGL**       | GPU-accelerated graphics                       |
-| **GLSL**        | Procedural smoke shaders                       |
-| **MediaPipe**   | Hand and face tracking                         |
-| **CSS**         | UI, camera presentation and responsive styling |
-| **Zustand**     | Lightweight state management                   |
-| **Vite/Vinext** | Development and application tooling            |
+VAPOR.exe is designed to work on both desktop and mobile browsers.
 
----
+The interface adapts to:
 
-# 📋 Requirements
+* Portrait orientation
+* Landscape orientation
+* Smaller screens
+* Touch interaction
+* Mobile safe areas
+* Camera viewport constraints
+* Fullscreen layouts
 
-Before running VAPOR.exe locally, make sure you have:
+The visual experience prioritizes the camera feed and interaction area while keeping controls accessible.
 
-* **Node.js 22.13+**
-* **npm**
-* A webcam
-* A modern browser
+### Recommended Mobile Browser
 
-Recommended browsers:
+For the best experience, use a modern version of:
 
 * Google Chrome
 * Microsoft Edge
-* Modern mobile Chrome/Safari where camera access is supported
+* Safari
+
+Camera permissions must be granted for AR interaction to function.
 
 ---
 
-# 🚀 Installation
+## 🚀 Performance
 
-Clone the repository:
+VAPOR.exe includes adaptive performance behavior for different devices.
 
-```bash
-git clone YOUR_REPOSITORY_URL
+The vision-tracking system supports three performance levels:
+
+```text
+HIGH
+MEDIUM
+LOW
 ```
 
-Enter the project directory:
+Tracking frequency can be reduced on less powerful devices to help maintain a smoother rendering experience.
+
+Visual quality can also adapt independently of tracking performance.
+
+This helps balance:
+
+```text
+Tracking Accuracy
+        +
+Rendering Quality
+        +
+Frame Rate
+```
+
+rather than forcing every device to run the same workload.
+
+---
+
+## 🔒 Privacy
+
+VAPOR.exe is designed around local browser processing.
+
+Camera frames are processed locally by the browser for the tracking experience.
+
+The application does **not intentionally upload or store your camera footage** as part of the core experience.
+
+Camera access is only required because the application needs the webcam to perform:
+
+* Hand tracking
+* Face tracking
+* Interaction detection
+
+You can revoke camera permission through your browser at any time.
+
+> Always review the deployed application's actual network behavior before making privacy claims for a production release.
+
+---
+
+## 🧠 Technology
+
+VAPOR.exe is built using modern browser technologies.
+
+### Core
+
+* TypeScript
+* React
+* Vite / Vinext
+* WebGL
+* GLSL
+
+### Computer Vision
+
+* MediaPipe Hand Tracking
+* MediaPipe Face Tracking
+
+### Rendering
+
+* Three.js
+* Custom WebGL / GLSL smoke rendering
+* Procedural particle effects
+
+### Interface
+
+* React components
+* CSS
+* Responsive layouts
+* Pixel-inspired typography
+* Game-style HUD
+
+---
+
+## 📁 Project Structure
+
+A simplified overview of the project:
+
+```text
+VAPOR.exe/
+│
+├── app/
+│   ├── boot/
+│   │   └── boot-screen.tsx
+│   │
+│   ├── controls/
+│   │   └── control-panel.tsx
+│   │
+│   ├── lib/
+│   │   ├── config.ts
+│   │   ├── settings-store.ts
+│   │   └── smoke-presets.ts
+│   │
+│   ├── ...
+│   │
+│   ├── smoking-experience.tsx
+│   ├── page.tsx
+│   ├── layout.tsx
+│   └── globals.css
+│
+├── public/
+│   └── mediapipe/
+│
+├── scripts/
+│   └── fetch-mediapipe-assets.mjs
+│
+├── tests/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
+├── LICENSE
+├── NOTICE.md
+├── package.json
+├── package-lock.json
+└── README.md
+```
+
+---
+
+## 🛠️ Local Development
+
+### Requirements
+
+You should have:
+
+* Node.js **22.13+**
+* npm
+* A working webcam
+* A modern Chromium-based browser or Safari
+
+---
+
+### Clone the Repository
 
 ```bash
+git clone [YOUR_GITHUB_REPOSITORY_URL_HERE]
 cd VAPOR.exe
 ```
 
-Install dependencies:
+---
+
+### Install Dependencies
 
 ```bash
 npm install
@@ -352,341 +442,363 @@ npm install
 
 ---
 
-# ▶️ Development
-
-Start the development server:
+### Start Development Server
 
 ```bash
 npm run dev
 ```
 
-The application should become available at:
+The development server should be available at:
 
 ```text
 http://localhost:3000
 ```
 
-Open the URL in a supported browser and grant camera permission.
+To expose the development server to other devices on your local network:
+
+```bash
+npm run dev -- --host 0.0.0.0
+```
+
+Then access the application using your computer's local network IP.
+
+> Camera permissions may behave differently on non-HTTPS local network URLs depending on the browser. A production HTTPS deployment is recommended for testing the complete mobile experience.
 
 ---
 
-# 📱 Running on a Phone
+## 🧪 Testing
 
-To access the development server from another device on the same Wi-Fi network:
-
-```bash
-npm run dev -- --host 0.0.0.0 --port 3000
-```
-
-Find your computer's local IP address.
-
-On Windows:
-
-```bash
-ipconfig
-```
-
-Look for the IPv4 address of your active Wi-Fi adapter.
-
-Then open the following on your phone:
-
-```text
-http://YOUR-COMPUTER-IP:3000
-```
-
-Example:
-
-```text
-http://192.168.1.6:3000
-```
-
-Both devices must be connected to the same local network.
-
-> If the browser refuses camera access over local HTTP, use an HTTPS development setup or a secure deployment/tunnel.
-
----
-
-# 🧪 Testing
-
-Run the project's test suite:
+Run the project's test suite with:
 
 ```bash
 npm test
 ```
 
-Run the production build:
+Before deployment, also run:
 
 ```bash
 npm run build
 ```
 
-Run TypeScript checking:
-
-```bash
-npx tsc --noEmit
-```
-
-Run linting:
-
-```bash
-npm run lint
-```
+A successful production build should complete without errors.
 
 ---
 
-# 📦 MediaPipe Assets
+## 🧩 MediaPipe Assets
 
-The project uses MediaPipe runtime/model assets.
+The project uses locally available MediaPipe assets for its tracking pipeline.
 
-A helper script is provided for fetching the required MediaPipe assets:
+A helper script is included for fetching the required assets:
 
 ```bash
 npm run fetch:mediapipe
 ```
 
-The repository currently retains the existing vendored MediaPipe assets.
+This can be useful when preparing a fresh environment or updating the vendored assets.
 
-The fetch script is intentionally **not automatically connected to `dev` or `build`** because asset downloading should not silently become a required network operation during normal development.
-
-If you choose to remove the vendored assets in the future, verify that the fetch process works correctly in your deployment/build environment first.
+Depending on the project's deployment configuration, ensure that all required runtime assets are available under the expected public paths before deploying.
 
 ---
 
-# 🔒 Privacy
+## 🎛️ Configuration
 
-VAPOR.exe uses the device camera for real-time interaction tracking.
-
-The camera feed is processed locally by the browser for the tracking experience.
-
-The project is designed around local real-time processing rather than uploading or storing camera footage.
-
-Users should still review the deployment environment and browser permissions before using the application.
-
----
-
-# 🎨 Design Philosophy
-
-VAPOR.exe is designed around a combination of:
-
-* Y2K-inspired digital aesthetics
-* Futuristic interfaces
-* Minimal glass UI
-* Real-time visual effects
-* Interactive camera experiences
-* Dark atmospheric visuals
-* Procedural graphics
-* Experimental browser technology
-
-The interface intentionally stays minimal so the camera experience remains the primary focus.
-
----
-
-# ⚙️ Configuration
-
-Core rendering and interaction constants are centralized in:
+Centralized configuration values are maintained in:
 
 ```text
 app/lib/config.ts
 ```
 
-Smoke visual presets are defined in:
+This keeps important interaction and rendering values out of the individual systems.
 
-```text
-app/lib/smoke-presets.ts
-```
+Examples include:
 
-User-facing settings are managed through:
-
-```text
-app/lib/settings-store.ts
-```
-
-The interaction system is located in:
-
-```text
-app/lib/interaction-engine.ts
-```
-
-The procedural smoke renderer is located in:
-
-```text
-app/lib/smoke-renderer.ts
-```
-
-Camera and MediaPipe processing is handled through:
-
-```text
-app/lib/vision-tracker.ts
-```
+* Interaction thresholds
+* Tracking parameters
+* Smoke parameters
+* Ash behavior
+* Wind
+* Burn behavior
+* Performance-related values
 
 ---
 
-# 🧩 Development Roadmap
+## 🌫️ Smoke Architecture
 
-The project has gone through several development phases.
+The smoke system is separated from the interaction system.
 
-### P0 — Architecture & Configuration
+Conceptually:
 
-* Centralized rendering/interaction configuration
-* Smoke preset architecture
-* Renderer uniform abstraction
-* Interaction-engine cleanup
-* Regression testing
-
-### P1 — Advanced Smoke
-
-* Multiple smoke presets
-* Wind controls
-* Turbulence controls
-* Ash particles
-* Ash physics
-* Smoke blending modes
-
-### P2 — User Interface
-
-* Floating glass control panel
-* Smoke preset selector
-* Intensity control
-* Wind control
-* Sensitivity control
-* Camera flip
-* Fullscreen
-* Reset
-* Help
-* Camera/tracking status feedback
-* Camera permission retry
-
-### P3 — Advanced Visual Effects
-
-Reserved for future advanced visual-effect development.
-
-### P4 — Performance & Mobile
-
-* Adaptive MediaPipe inference throttling
-* HIGH/MEDIUM/LOW performance modes
-* Renderer/tracker quality synchronization
-* Mobile safe-area support
-* Notch-aware UI positioning
-
-### P5 — Release Preparation
-
-* Documentation
-* Attribution
-* CI
-* MediaPipe asset management
-* Release-readiness improvements
-
----
-
-# 🧪 Current Status
-
-**VAPOR.exe is currently a release candidate pending real-world browser and device verification.**
-
-Automated and code-level validation has been performed across the development phases, including:
-
-* Syntax validation
-* JSX/TSX bundling
-* TypeScript checks
-* Behavioral interaction tests
-* Smoke shader validation
-* Performance-throttle validation
-* Whitebox tests
-* Regression checks
-* CI/YAML validation
-
-However, the development environment used during implementation did not have functional network access, so the complete real-world installation/build flow could not be verified there.
-
-Before considering the project production-ready, run:
-
-```bash
-npm install
-npm test
-npm run build
-npm run dev
+```text
+Interaction Engine
+       │
+       ├── Cigarette Position
+       ├── Inhale State
+       ├── Exhale State
+       └── Burn State
+              │
+              ▼
+       Smoke Renderer
+              │
+       ┌──────┴──────┐
+       ▼             ▼
+    Smoke          Ash
+  Particles      Particles
+       │             │
+       └──────┬──────┘
+              ▼
+          WebGL / GLSL
 ```
 
-and test the application in an actual browser and on an actual mobile device.
+This separation makes it possible to modify the visual smoke system without rewriting the core AR interaction logic.
 
 ---
 
-# 📜 License
+## 🔧 Settings Architecture
 
-VAPOR.exe is based on the open-source **Virtual Smoke** project.
+User preferences are managed through a dedicated settings store.
 
-The original project's MIT License is preserved in:
+The current settings system includes:
+
+```text
+Preset
+Intensity
+Wind Strength
+Sensitivity
+Mirrored Camera
+Panel State
+Help State
+```
+
+Settings can be updated by the UI without directly coupling the controls to the rendering implementation.
+
+---
+
+## 🖥️ Browser Compatibility
+
+VAPOR.exe requires browser support for:
+
+* Webcam access
+* WebGL
+* JavaScript modules
+* Modern React/browser APIs
+* MediaPipe runtime requirements
+
+Recommended:
+
+| Platform | Browser                |
+| -------- | ---------------------- |
+| Windows  | Chrome / Edge          |
+| macOS    | Chrome / Safari / Edge |
+| Android  | Chrome                 |
+| iOS      | Safari                 |
+| Linux    | Chrome / Chromium      |
+
+Actual performance and tracking quality will vary significantly depending on the device.
+
+---
+
+## ⚠️ Limitations
+
+VAPOR.exe is an experimental interactive project.
+
+Performance may vary based on:
+
+* Device CPU/GPU
+* Camera quality
+* Lighting conditions
+* Browser implementation
+* Screen resolution
+* Number of visible particles
+* MediaPipe tracking performance
+
+Tracking can become less reliable in:
+
+* Very dark environments
+* Extremely bright environments
+* Poor camera quality
+* Heavy motion blur
+* Occluded hands
+* Faces partially outside the camera frame
+
+For best results:
+
+1. Use a well-lit environment.
+2. Keep your face visible.
+3. Keep your hand within the camera frame.
+4. Avoid excessive motion blur.
+5. Use a modern device with WebGL support.
+
+---
+
+## 🔐 Permissions
+
+The application requires camera access.
+
+When prompted by the browser:
+
+```text
+Allow Camera → Enter Experience
+```
+
+If permission is denied, camera functionality will not work.
+
+You can reset camera permissions through your browser's site settings.
+
+---
+
+## 📜 License
+
+This project is released under the **MIT License**.
+
+See:
 
 ```text
 LICENSE
 ```
 
-Additional attribution and third-party licensing information is available in:
+for the complete license text.
+
+---
+
+## 🙏 Credits & Attribution
+
+VAPOR.exe builds upon open-source technologies and assets.
+
+### Virtual Smoke
+
+The project originated from / is based on the **Virtual Smoke** project by KwonTaeJunDS.
+
+Original repository:
+
+`https://github.com/KwonTaeJunDS/Virtual_Smoke`
+
+The original project is licensed under the MIT License.
+
+See `NOTICE.md` for attribution details.
+
+### MediaPipe
+
+Hand and face tracking functionality uses Google's MediaPipe technology.
+
+MediaPipe is distributed under its applicable open-source license.
+
+See:
 
 ```text
 NOTICE.md
 ```
 
-Please retain the required copyright and license notices when redistributing modified versions of the project.
+for additional attribution information.
 
 ---
 
-# 🙏 Credits
+## ⚖️ Disclaimer
 
-VAPOR.exe builds upon open-source technologies and assets including:
+VAPOR.exe is an **interactive visual simulation** created for experimentation and entertainment.
 
-* The original **Virtual Smoke** project
-* MediaPipe
-* Three.js
-* React
-* TypeScript
-* WebGL
-* GLSL
+It does not involve real tobacco, nicotine, smoke, or combustion.
 
-See `NOTICE.md` for detailed attribution and licensing information.
+The virtual cigarette and smoking effects are purely digital.
+
+The project should not be interpreted as an endorsement of smoking or tobacco use.
 
 ---
 
-# ⚠️ Disclaimer
+## 🗺️ Roadmap
 
-VAPOR.exe is an experimental interactive visual-effects project.
+Potential future improvements include:
 
-The virtual cigarette and smoke are digital visual effects intended for an interactive AR experience.
+* [ ] More realistic smoke simulation
+* [ ] Additional smoke presets
+* [ ] Improved mobile performance
+* [ ] Better low-light tracking
+* [ ] Additional interaction gestures
+* [ ] More environmental effects
+* [ ] Audio-reactive smoke
+* [ ] Additional visual themes
+* [ ] Improved accessibility
+* [ ] Better device-specific quality profiles
+* [ ] Optional PWA support
+* [ ] More interactive AR objects
 
-VAPOR.exe does not provide medical, health, or smoking advice.
+The roadmap is subject to change as the project evolves.
 
 ---
 
-# 🌐 Browser Experience
+## 🧑‍💻 Development Philosophy
 
-VAPOR.exe is designed to be experienced directly through a modern web browser.
+VAPOR.exe is built around three main ideas:
 
-No dedicated native application is required.
+### 01 — Interaction First
 
-The core interaction loop is:
+The camera should feel like an input device rather than simply a background.
+
+### 02 — Real-Time Visuals
+
+Smoke and particles should respond dynamically to the user's actions.
+
+### 03 — Personality Without Clutter
+
+The interface should have a strong visual identity while keeping the actual interaction simple.
+
+---
+
+## ⭐ Project Status
+
+**Status:** Experimental / Active Development
+
+VAPOR.exe is currently a functional browser-based AR experiment with:
+
+* Hand tracking
+* Face tracking
+* Interactive virtual cigarette
+* Procedural smoke
+* Smoke presets
+* Wind controls
+* Burn system
+* Ash particles
+* Responsive UI
+* Game-style HUD
+* Mobile layouts
+* Adaptive performance modes
+* Local camera processing
+* Automated tests
+* CI configuration
+
+The project is still subject to browser, device, and camera-specific limitations.
+
+---
+
+## 🌐 Links
+
+**Live Application**
+
+`[YOUR_LIVE_URL_HERE]`
+
+**GitHub Repository**
+
+`[YOUR_GITHUB_REPOSITORY_URL_HERE]`
+
+**Demo**
+
+`[YOUR_DEMO_URL_HERE]`
+
+**Project / Portfolio**
+
+`[YOUR_PORTFOLIO_URL_HERE]`
+
+---
+
+## 💜 VAPOR.exe
 
 ```text
-CAMERA
-   ↓
-HAND + FACE TRACKING
-   ↓
-GESTURE DETECTION
-   ↓
-INTERACTION ENGINE
-   ↓
-CIGARETTE STATE
-   ↓
-PROCEDURAL SMOKE
-   ↓
-REAL-TIME WEBGL
-   ↓
-VAPOR.exe
+┌──────────────────────────────────────┐
+│                                      │
+│              VAPOR.exe               │
+│                                      │
+│       SEE IT.  GRAB IT.  VAPE IT.    │
+│                                      │
+└──────────────────────────────────────┘
 ```
 
----
-
-## VAPOR.exe
-
-**Touch nothing.
-Just move.
-Inhale.
-Exhale.
-Watch the vapor.**
+*A small experiment in browser-based AR, computer vision, and procedural graphics.*
