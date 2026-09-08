@@ -15,12 +15,12 @@ No installation is required for the deployed version — just open the website, 
 ### Production
 
 **Live URL:**
-`[YOUR_LIVE_URL_HERE]`
+`https://vapor-exe-cyan.vercel.app/`
 
 ### Repository
 
 **GitHub:**
-`[https://github.com/AboobakerSiddique/Vapor.exe]`
+`https://github.com/AboobakerSiddique/Vapor.exe`
 
 
 
@@ -768,7 +768,7 @@ The project is still subject to browser, device, and camera-specific limitations
 
 **Live Application**
 
-`[YOUR_LIVE_URL_HERE]`
+`https://vapor-exe-cyan.vercel.app/`
 
 **GitHub Repository**
 
