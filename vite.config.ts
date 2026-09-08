@@ -3,6 +3,7 @@ import vinext from "vinext";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
+import tailwindcss from "@tailwindcss/vite";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -43,9 +44,10 @@ export default defineConfig(async () => {
   process.env.MINIFLARE_REGISTRY_PATH ??= ".wrangler/registry";
 
   const plugins = [
-    vinext(),
-    sites(),
-  ];
+  tailwindcss(),
+  vinext(),
+  sites(),
+   ];
 
   if (isVercel) {
     // Vercel deployment through Nitro.
